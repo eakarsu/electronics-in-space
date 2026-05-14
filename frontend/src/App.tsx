@@ -13,6 +13,11 @@ import ExportsPage from './pages/ExportsPage';
 import AuditPage from './pages/AuditPage';
 import SampleDataPage from './pages/SampleDataPage';
 import Dashboard from './pages/Dashboard';
+import RadTestCampaignsPage from './pages/RadTestCampaignsPage';
+import OrbitEnvironmentsPage from './pages/OrbitEnvironmentsPage';
+import UpscreenLotsPage from './pages/UpscreenLotsPage';
+import SubsystemBudgetsPage from './pages/SubsystemBudgetsPage';
+import RadHardFoundriesPage from './pages/RadHardFoundriesPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   return localStorage.getItem('token') ? <>{children}</> : <Navigate to="/login" replace />;
@@ -32,6 +37,11 @@ export default function App() {
           <Route path="tests" element={<TestsPage />} />
           <Route path="manufacturers" element={<ManufacturersPage />} />
           <Route path="research" element={<ResearchPage />} />
+          <Route path="rad-test-campaigns" element={<RadTestCampaignsPage />} />
+          <Route path="orbit-environments" element={<OrbitEnvironmentsPage />} />
+          <Route path="upscreen-lots" element={<UpscreenLotsPage />} />
+          <Route path="subsystem-budgets" element={<SubsystemBudgetsPage />} />
+          <Route path="rad-hard-foundries" element={<RadHardFoundriesPage />} />
           <Route path="ai" element={<AICenter />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="exports" element={<ExportsPage />} />

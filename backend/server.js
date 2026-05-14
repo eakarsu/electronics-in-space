@@ -38,6 +38,14 @@ app.use('/api/cf-itar-collaboration', require('./routes/cf-itar-collaboration'))
 app.use('/api/cf-rad-test-plan-gen', require('./routes/cf-rad-test-plan-gen'));
 app.use('/api/cf-mission-derating', require('./routes/cf-mission-derating'));
 app.use('/api/cf-rad-hard-marketplace', require('./routes/cf-rad-hard-marketplace'));
+
+// === Audit deep-feature implementations (2026-05-14) ===
+app.use('/api/rad-test-campaigns',  require('./routes/rad-test-campaigns'));
+app.use('/api/orbit-environments',  require('./routes/orbit-environments'));
+app.use('/api/upscreen-lots',       require('./routes/upscreen-lots'));
+app.use('/api/subsystem-budgets',   require('./routes/subsystem-budgets'));
+app.use('/api/rad-hard-foundries',  require('./routes/rad-hard-foundries'));
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: err.message });
