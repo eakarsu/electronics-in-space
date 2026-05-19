@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { Cpu, Rocket, Link2, FlaskConical, Factory, BookOpen, Sparkles, LogOut, Search, FileText, ScrollText, Database, LayoutDashboard, Atom, Globe, Boxes, Scale, Building2 } from 'lucide-react';
+import { Cpu, Rocket, Link2, FlaskConical, Factory, BookOpen, Sparkles, LogOut, Search, FileText, ScrollText, Database, LayoutDashboard, Atom, Globe, Boxes, Scale, Building2, Telescope } from 'lucide-react';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -17,6 +17,10 @@ const radNavItems = [
   { to: '/upscreen-lots',      icon: Boxes, label: 'COTS Upscreening' },
   { to: '/subsystem-budgets',  icon: Scale, label: 'Mass / Power Budgets' },
   { to: '/rad-hard-foundries', icon: Building2, label: 'Rad-Hard Foundries' },
+];
+
+const spaceViewsNavItems = [
+  { to: '/custom-views', icon: Telescope, label: 'Space Views' },
 ];
 
 const utilNavItems = [
@@ -88,6 +92,22 @@ export default function Layout() {
               <Sparkles size={16} />
               AI Center
             </NavLink>
+          </div>
+          <div className="pt-4 border-t border-gray-800 mt-4 space-y-1">
+            <p className="px-3 pb-1 text-[10px] uppercase tracking-wider text-gray-500">Space Views</p>
+            {spaceViewsNavItems.map(({ to, icon: Icon, label }) => (
+              <NavLink
+                key={to} to={to}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive ? 'bg-cyan-900/30 text-cyan-400 border border-cyan-800/40' : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`
+                }
+              >
+                <Icon size={16} />
+                {label}
+              </NavLink>
+            ))}
           </div>
           <div className="pt-4 border-t border-gray-800 mt-4 space-y-1">
             {utilNavItems.map(({ to, icon: Icon, label }) => (

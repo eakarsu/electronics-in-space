@@ -46,6 +46,15 @@ app.use('/api/upscreen-lots',       require('./routes/upscreen-lots'));
 app.use('/api/subsystem-budgets',   require('./routes/subsystem-budgets'));
 app.use('/api/rad-hard-foundries',  require('./routes/rad-hard-foundries'));
 
+// Health
+app.get('/api/health', (req, res) => res.json({ ok: true, service: 'electronics-in-space', ts: new Date().toISOString() }));
+
+// Custom Views (mounted BEFORE 404/error handlers)
+app.use('/api/custom-views', require('./routes/customViews'));
+
+// 404 catch-all for unknown /api routes (must be AFTER all mounts)
+app.use('/api', (req, res) => res.status(404).json({ error: 'Not found', path: req.originalUrl }));
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: err.message });

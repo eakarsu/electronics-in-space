@@ -18,6 +18,7 @@ import OrbitEnvironmentsPage from './pages/OrbitEnvironmentsPage';
 import UpscreenLotsPage from './pages/UpscreenLotsPage';
 import SubsystemBudgetsPage from './pages/SubsystemBudgetsPage';
 import RadHardFoundriesPage from './pages/RadHardFoundriesPage';
+import CustomViewsPage from './pages/CustomViewsPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   return localStorage.getItem('token') ? <>{children}</> : <Navigate to="/login" replace />;
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="upscreen-lots" element={<UpscreenLotsPage />} />
           <Route path="subsystem-budgets" element={<SubsystemBudgetsPage />} />
           <Route path="rad-hard-foundries" element={<RadHardFoundriesPage />} />
+          <Route path="custom-views" element={<CustomViewsPage />} />
           <Route path="ai" element={<AICenter />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="exports" element={<ExportsPage />} />
