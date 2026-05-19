@@ -109,3 +109,148 @@ INSERT INTO research_papers (title, authors, focus_area, findings, published_dat
 ('Radiation Effects on 3D-Stacked Memory for Space Applications', 'Wilson, P.; Kim, J.; Garcia, M.', 'memory_radiation', '3D-stacked DRAM with TSV interconnects shows 3x higher SEU sensitivity per bit than planar LPDDR4, requiring comprehensive EDAC for space deployment.', '2023-10-30', 201, 'IEEE Solid-State Circuits Letters', '10.1109/LSSC.2023.76543'),
 ('Gallium Nitride Power Electronics for Space Power Systems', 'Anderson, L.; Murphy, T.', 'GaN_space', 'GaN-on-SiC power converters achieve 97% efficiency at 100W in vacuum environment with demonstrated 100krad TID tolerance, enabling mass reduction of 45% vs. silicon alternatives.', '2024-06-12', 156, 'IEEE Power Electronics Letters', '10.1109/LPEL.2024.34567')
 ON CONFLICT DO NOTHING;
+
+-- =====================================================================
+-- Seed: Radiation Test Campaigns (linked to chips by index)
+-- Real facilities: Brookhaven NSRL, TAMU Cyclotron Institute K500,
+-- LBNL 88-Inch Cyclotron, RADEF Jyvaskyla, UC Davis CNL
+-- =====================================================================
+INSERT INTO rad_test_campaigns (chip_id, campaign_name, test_standard, facility, beam_type, campaign_status, total_tid_target_krad, dose_rate_rad_per_sec, start_date, end_date, pi_engineer, notes) VALUES
+(1, 'RAD750 100krad TID Re-qualification', 'MIL-STD-883 TM1019.9', 'Defense Microelectronics Activity (DMEA)', 'gamma-Co60', 'complete', 100, 50, '2024-02-12', '2024-02-15', 'M. Davis (BAE)', 'Annual lot acceptance, ELDRS step-stress, parts from wafer lot W2304-A'),
+(1, 'RAD750 Heavy-Ion SEE at TAMU K500', 'JESD57', 'Texas A&M Cyclotron Institute K500', 'heavy-ion', 'complete', 0, 0, '2024-04-22', '2024-04-26', 'J. Chen (NASA GSFC)', 'Au, Ag, Kr, Ar, N beams; LET 1-86 MeV-cm2/mg; chip in operate-mode running RTEMS test load'),
+(2, 'LEON3-FT Proton SEE at TRIUMF', 'JESD57', 'TRIUMF PIF', 'proton-105MeV', 'complete', 0, 0, '2023-09-08', '2023-09-10', 'A. Lindgren (Gaisler)', '105 MeV proton, integral SEU cross-section 1e-14 cm2/bit'),
+(3, 'GR740 SEL Latchup Screen', 'ESCC 25100', 'RADEF Jyvaskyla', 'heavy-ion-Xe', 'complete', 0, 0, '2024-01-15', '2024-01-19', 'S. Habinc (Cobham)', 'No SEL observed up to LET=60 MeV-cm2/mg at 125C, Vdd+10%'),
+(4, 'RAD5500 TID 1Mrad Step-Stress', 'MIL-STD-883 TM1019.9', 'BAE Manassas Radiation Test Facility', 'gamma-Co60', 'in-progress', 1000, 100, '2025-03-01', NULL, 'M. Davis (BAE)', 'Step doses: 10/30/100/300/500/1000 krad; functional after each step'),
+(5, 'SpaceCube Mini RadFx Characterization', 'NASA EEE-INST-002', 'Brookhaven NASA Space Radiation Lab', 'heavy-ion-Fe', 'complete', 30, 0, '2023-11-13', '2023-11-17', 'M. Sampson (NASA GSFC)', 'Fe-56 ion at 1 GeV/n; SEU/SEFI characterization for SpaceCube v3'),
+(7, 'XQR Virtex-5QV Configuration SEU Test', 'JESD57 + Xilinx XCN09013', 'LBNL 88-Inch Cyclotron', 'heavy-ion', 'complete', 0, 0, '2024-07-08', '2024-07-12', 'G. Allen (Xilinx)', 'Configuration memory upset rate per LET; bitstream scrubbing rate determination'),
+(8, 'VORAGO VA10820 HARDSIL Validation', 'MIL-PRF-38535 QML-Q', 'Vorago in-house + UC Davis', 'gamma-Co60', 'complete', 300, 100, '2023-06-20', '2023-06-30', 'B. Pierce (Vorago)', 'HARDSIL CMOS process validated to 300krad with no parametric shift'),
+(10, 'SAMRH71 ARM Cortex-M7 SEE Campaign', 'ESCC 25100', 'UCL Cyclotron Belgium', 'heavy-ion', 'complete', 0, 0, '2024-05-13', '2024-05-17', 'C. Boatella-Polo (ESA)', 'LET threshold for SEU 4.2, sat XS 2.1e-9 cm2/bit'),
+(13, 'UT8R512K32 SRAM Long-Mission Dose', 'MIL-STD-883 TM1019.9', 'Aeroflex (Cobham) Radiation Lab', 'gamma-Co60', 'complete', 200, 30, '2022-08-15', '2022-08-22', 'R. Garbos (Aeroflex)', 'Used for JWST flight lot acceptance, SRAM functional to 200krad'),
+(11, 'Cortex-R5 Rad-Hard 300krad Pre-Production', 'MIL-STD-883 TM1019', 'Bechtel Plasma Sci. Center', 'gamma-Co60', 'in-progress', 300, 100, '2025-04-01', NULL, 'TBD', 'Pre-production rad-hard ARM Cortex-R5 lot screening'),
+(15, 'SpaceX FSD-Space COTS Heavy-Ion Survey', 'NASA-HDBK-4002A', 'TAMU K500', 'heavy-ion', 'complete', 0, 0, '2024-08-05', '2024-08-09', 'P. Knapp (SpaceX)', 'COTS automotive die in heavy-ion survey, SEL observed at LET=18, mitigated by current-limit shutdown')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO rad_test_runs (campaign_id, run_label, effect_type, let_mev_cm2_mg, fluence_particles_cm2, cumulative_tid_krad, errors_observed, cross_section_cm2, saturation_xs_cm2, threshold_let, current_uA, vdd_voltage, pass, observations) VALUES
+(1, 'TID step 10krad', 'TID', NULL, NULL, 10, 0, NULL, NULL, NULL, 1850, 3.3, true, 'Idd within spec, all functional patterns pass'),
+(1, 'TID step 50krad', 'TID', NULL, NULL, 50, 0, NULL, NULL, NULL, 1920, 3.3, true, 'Idd +3.8% drift, within 10% spec limit'),
+(1, 'TID step 100krad', 'TID', NULL, NULL, 100, 0, NULL, NULL, NULL, 2010, 3.3, true, 'Idd +8.6% drift, ELDRS effects bounded'),
+(2, 'Ar LET=8.6', 'SEU', 8.6, 1.0e7, 0, 12, 1.2e-6, NULL, NULL, NULL, 3.3, true, 'Cache SEU rate measured, below 1e-5 errors/bit-day at GEO'),
+(2, 'Kr LET=29', 'SEU', 29.0, 1.0e7, 0, 245, 2.45e-5, NULL, NULL, NULL, 3.3, true, 'Floating-point register SEU cluster observed'),
+(2, 'Au LET=86', 'SEL', 86.0, 5.0e6, 0, 0, 0, NULL, NULL, NULL, 3.3, true, 'No latchup observed at saturating LET; SOI process confirmed SEL-immune'),
+(2, 'Xe LET=58', 'SEFI', 58.0, 1.0e6, 0, 3, 3.0e-6, 1e-5, 8.2, NULL, 3.3, true, 'SEFI requiring power-cycle, 3 events / 1e6 ions'),
+(3, 'p-105 MeV integral', 'SEU', 0.5, 1.0e11, 0, 412, 4.12e-9, 1e-8, NULL, NULL, 3.3, true, 'Proton SEU XS measured for LEO use'),
+(4, 'SEL Xe-LET-60', 'SEL', 60.0, 5.0e6, 0, 0, 0, NULL, NULL, NULL, 1.2, true, 'SEL-immune at 125C, +10% Vdd, LET 60'),
+(5, 'TID step 30krad', 'TID', NULL, NULL, 30, 0, NULL, NULL, NULL, 3450, 1.2, true, 'GR740 dual-core LEON4 functional after 30krad'),
+(6, 'Fe-56 LET=30', 'SEU', 30.0, 5.0e6, 0, 87, 1.74e-5, NULL, NULL, NULL, 1.2, true, 'SpaceCube Mini SEU within mission allocation'),
+(7, 'Au LET=86 config', 'SEU', 86.0, 1.0e7, 0, 1240, 1.24e-4, 5e-4, 1.5, NULL, 1.0, true, 'Configuration memory upset rate baseline for scrubbing design'),
+(8, 'TID step 100krad', 'TID', NULL, NULL, 100, 0, NULL, NULL, NULL, 78, 3.3, true, 'HARDSIL no shift through 100krad'),
+(8, 'TID step 300krad', 'TID', NULL, NULL, 300, 0, NULL, NULL, NULL, 82, 3.3, true, 'HARDSIL no shift through 300krad - mission complete'),
+(9, 'Kr LET=29', 'SEU', 29.0, 1.0e7, 0, 18, 1.8e-6, NULL, 4.2, NULL, 3.3, true, 'SAMRH71 SEU LET threshold ~4.2 MeV-cm2/mg'),
+(10, 'TID step 100krad', 'TID', NULL, NULL, 100, 0, NULL, NULL, NULL, 240, 3.3, true, 'UT8R512K32 SRAM all bits functional after 100krad'),
+(10, 'TID step 200krad', 'TID', NULL, NULL, 200, 1, NULL, NULL, NULL, 255, 3.3, true, '1 stuck bit at 200krad on part SN-37'),
+(12, 'Ar LET=8.6 SEL', 'SEL', 8.6, 1.0e7, 0, 0, 0, NULL, NULL, NULL, 1.8, true, 'COTS FSD-Space no SEL at LET 8.6'),
+(12, 'Kr LET=18 SEL', 'SEL', 18.0, 5.0e6, 0, 4, 8.0e-7, NULL, NULL, 1.8, false, 'SEL observed at LET=18; mitigation via active current-limit circuit'),
+(12, 'Au LET=58 SEFI', 'SEFI', 58.0, 1.0e6, 0, 28, 2.8e-5, 5e-5, 12.0, NULL, 1.8, false, 'COTS SEFI rate too high without external watchdog')
+ON CONFLICT DO NOTHING;
+
+-- =====================================================================
+-- Seed: Orbit Environment Profiles
+-- =====================================================================
+INSERT INTO orbit_profiles (profile_name, orbit_class, altitude_km, inclination_deg, eccentricity, trapped_proton_model, trapped_electron_model, gcr_model, solar_activity, annual_tid_krad, shield_thickness_mm_al, peak_let_mev_cm2_mg, notes) VALUES
+('ISS 400km / 51.6deg', 'LEO', 400, 51.6, 0.0003, 'AP9 v1.50.001', 'AE9 v1.50.001', 'CREME96', 'solar-max', 0.6, 2.54, 28, 'Standard human spaceflight LEO, modest SAA dose'),
+('Starlink 550km / 53deg', 'LEO', 550, 53.0, 0.0001, 'AP9 v1.50.001', 'AE9 v1.50.001', 'CREME96', 'solar-max', 1.2, 2.54, 28, 'Starlink Gen2 shell - drives upscreen requirements'),
+('OneWeb 1200km / 87.9deg', 'LEO', 1200, 87.9, 0.0002, 'AP9 v1.50.001', 'AE9 v1.50.001', 'CREME96', 'solar-max', 6.8, 2.54, 28, 'Higher inner-belt proton flux at this altitude'),
+('Sentinel SSO 800km / 98.7deg', 'LEO-SSO', 800, 98.7, 0.0001, 'AP9 v1.50.001', 'AE9 v1.50.001', 'CREME96', 'solar-max', 3.4, 2.54, 28, 'Sun-synchronous polar orbit for Earth observation'),
+('GPS MEO 20200km / 55deg', 'MEO', 20200, 55.0, 0.02, 'AP9 v1.50.001', 'AE9 v1.50.001', 'CREME96', 'solar-max', 17.5, 5.0, 28, 'Heart of outer electron belt - very high electron flux'),
+('GEO geostationary', 'GEO', 35786, 0.0, 0.0, 'AP9 v1.50.001', 'AE9 v1.50.001', 'CREME96', 'solar-max', 12.4, 5.0, 28, 'Outside trapped protons but high electron+GCR'),
+('Molniya HEO 1000x39000', 'HEO', 39000, 63.4, 0.74, 'AP9 v1.50.001', 'AE9 v1.50.001', 'CREME96', 'solar-max', 38.0, 5.0, 28, 'Crosses both belts - very high dose, used by SBIRS'),
+('Lunar Gateway NRHO', 'lunar', 70000, 0.0, 0.85, 'none', 'none', 'CREME96', 'solar-max', 0.45, 2.54, 28, 'Outside Earth belts, dominated by GCR + SEP events'),
+('Lunar surface', 'lunar-surface', 0, 0.0, 0.0, 'none', 'none', 'CREME96', 'solar-max', 0.35, 2.54, 28, 'Half-sky shielded by Moon; surface dose 30-50% of free-space'),
+('Europa Clipper Jupiter', 'deep-space', 0, 0.0, 0.0, 'GIRE-2 Jovian', 'GIRE-2 Jovian', 'CREME96', 'solar-max', 280.0, 7.5, 60, 'Jovian electron environment - 300 krad mission TID requirement'),
+('Mars transit + surface', 'interplanetary', 0, 0.0, 0.0, 'none', 'none', 'CREME96 + Badhwar-ONeill', 'solar-min', 18.0, 5.0, 28, 'GCR-dominated, SEP storm events drive worst-case'),
+('JWST Sun-Earth L2', 'L2', 1500000, 0.0, 0.0, 'none', 'none', 'CREME96', 'solar-max', 2.5, 5.0, 28, 'Outside Earth magnetosphere most of orbit, GCR + occasional SEP')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO orbit_dose_curves (profile_id, shield_thickness_mm, cumulative_dose_year_krad, proton_flux_per_cm2_s, electron_flux_per_cm2_s, notes) VALUES
+(1, 1.0, 2.4, 320, 4.8e3, 'ISS thin-shield TID-year'),
+(1, 2.54, 0.6, 110, 1.8e3, 'ISS nominal shield 100 mils Al'),
+(1, 5.0, 0.18, 28, 380, 'ISS heavy shield reduces e- significantly'),
+(2, 2.54, 1.2, 240, 5.2e3, 'Starlink nominal'),
+(3, 2.54, 6.8, 980, 1.4e4, 'OneWeb inner-belt proton dominated'),
+(5, 2.54, 36.0, 480, 1.8e5, 'GPS MEO without extra shield - unacceptable for COTS'),
+(5, 5.0, 17.5, 240, 8.6e4, 'GPS MEO nominal shield'),
+(5, 10.0, 6.8, 110, 2.8e4, 'GPS MEO heavy shield'),
+(6, 5.0, 12.4, 95, 6.2e4, 'GEO nominal 200 mil shield'),
+(7, 5.0, 38.0, 380, 8.4e4, 'Molniya per-orbit highest among Earth orbits'),
+(10, 7.5, 280.0, 1.2e4, 2.8e6, 'Europa Clipper - Jupiter radiation belt nightmare'),
+(10, 15.0, 95.0, 4.2e3, 9.8e5, 'Europa Clipper with thick vault shield')
+ON CONFLICT DO NOTHING;
+
+-- =====================================================================
+-- Seed: COTS Upscreening Lots (NewSpace-style screening flow)
+-- =====================================================================
+INSERT INTO upscreen_lots (chip_id, lot_code, date_code, parts_received, parts_accepted, parts_rejected, upscreen_class, customer, start_date, complete_date, status, notes) VALUES
+(15, 'FSD-LOT-2407A', '2407', 500, 472, 28, 'SpaceX rad-screen Class B', 'SpaceX Starlink', '2024-07-15', '2024-08-10', 'complete', 'Custom FSD-Space lot for V2 Starlink, 5.6% reject rate'),
+(15, 'FSD-LOT-2408B', '2408', 500, 481, 19, 'SpaceX rad-screen Class B', 'SpaceX Starlink', '2024-08-12', '2024-09-05', 'complete', 'Yield improved batch-over-batch'),
+(11, 'CR5-LOT-2503', '2503', 250, 238, 12, 'AEC-Q100 + 100krad rad-screen', 'Planet Labs', '2025-03-10', NULL, 'in-progress', 'Cortex-R5 for SkySat-29 build, burn-in step ongoing'),
+(8, 'VA10820-LOT-2412', '2412', 100, 96, 4, 'MIL-883 Class B equiv', 'York Space', '2024-12-02', '2025-01-15', 'complete', 'Vorago HARDSIL MCU for cubesat C&DH, low reject due to inherent RH'),
+(10, 'SAMRH71-LOT-2406', '2406', 80, 78, 2, 'ESCC + 100krad', 'ESA OPS-SAT', '2024-06-10', '2024-07-20', 'complete', 'SAMRH71 already QML-Q, screening adds lot acceptance'),
+(13, 'UT8R-LOT-2310', '2310', 60, 58, 2, 'MIL-883 Class S', 'NASA JWST Spare', '2023-10-05', '2023-11-30', 'complete', 'SRAM flight spares for JWST OBC')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO upscreen_steps (lot_id, step_order, step_name, standard_ref, duration_hours, temperature_c, voltage_stress_v, parts_in, parts_pass, parts_fail, yield_pct, observations) VALUES
+(1, 1, 'incoming-visual', 'MIL-STD-883 TM2009', 0.5, 25, NULL, 500, 498, 2, 99.6, 'Mark legibility rejects'),
+(1, 2, 'X-ray', 'MIL-STD-883 TM2012', 1.0, 25, NULL, 498, 495, 3, 99.4, 'Wire-bond void rejects'),
+(1, 3, 'PIND', 'MIL-STD-883 TM2020', 2.0, 25, NULL, 495, 491, 4, 99.2, 'Particle Impact Noise Detection - loose debris'),
+(1, 4, 'fine-leak', 'MIL-STD-883 TM1014', 1.0, 25, NULL, 491, 489, 2, 99.6, 'Helium fine-leak hermeticity'),
+(1, 5, 'electrical-25C', 'datasheet ATE', 0.25, 25, 1.8, 489, 485, 4, 99.2, 'Initial electrical screen'),
+(1, 6, 'burn-in-240hr', 'MIL-STD-883 TM1015', 240.0, 125, 2.0, 485, 478, 7, 98.6, 'Dynamic burn-in @ 125C, +10% Vdd'),
+(1, 7, 'post-burn-in-electrical', 'datasheet ATE', 0.25, 25, 1.8, 478, 475, 3, 99.4, 'Delta-electrical screen, drift outliers'),
+(1, 8, 'rad-screen-30krad', 'MIL-STD-883 TM1019', 8.0, 25, 1.8, 475, 472, 3, 99.4, 'Sample TID 30krad rad-screen, lot acceptance'),
+(2, 1, 'incoming-visual', 'MIL-STD-883 TM2009', 0.5, 25, NULL, 500, 499, 1, 99.8, 'Improved cosmetic yield'),
+(2, 2, 'X-ray', 'MIL-STD-883 TM2012', 1.0, 25, NULL, 499, 497, 2, 99.6, 'X-ray pass'),
+(2, 3, 'PIND', 'MIL-STD-883 TM2020', 2.0, 25, NULL, 497, 495, 2, 99.6, 'PIND pass'),
+(2, 4, 'fine-leak', 'MIL-STD-883 TM1014', 1.0, 25, NULL, 495, 494, 1, 99.8, 'Hermeticity'),
+(2, 5, 'burn-in-240hr', 'MIL-STD-883 TM1015', 240.0, 125, 2.0, 494, 488, 6, 98.8, 'Burn-in'),
+(2, 6, 'rad-screen-30krad', 'MIL-STD-883 TM1019', 8.0, 25, 1.8, 488, 481, 7, 98.6, 'Rad screen'),
+(3, 1, 'incoming-visual', 'MIL-STD-883 TM2009', 0.5, 25, NULL, 250, 249, 1, 99.6, 'Visual pass'),
+(3, 2, 'X-ray', 'MIL-STD-883 TM2012', 1.0, 25, NULL, 249, 248, 1, 99.6, 'X-ray pass'),
+(3, 3, 'burn-in-160hr', 'MIL-STD-883 TM1015', 160.0, 125, 1.32, 248, 240, 8, 96.8, 'Cortex-R5 burn-in ongoing - infant-mortality stage')
+ON CONFLICT DO NOTHING;
+
+-- =====================================================================
+-- Seed: Mission Subsystem Mass/Power Budgets
+-- =====================================================================
+INSERT INTO subsystem_budgets (mission_id, subsystem, mass_allocated_g, mass_used_g, power_avg_allocated_w, power_avg_used_w, power_peak_w, derate_factor, margin_required_pct, chip_id, notes) VALUES
+(2, 'C&DH (Command & Data Handling)', 8500, 7820, 28, 22.5, 38, 0.8, 25.0, 4, 'Artemis III lunar surface - RAD5500 main flight computer'),
+(2, 'EPS (Electric Power Subsystem)', 18000, 16400, 0, 0, 0, 0.7, 30.0, NULL, 'Battery+PMIC for surface ops'),
+(2, 'ADCS', 4200, 3950, 15, 12, 22, 0.8, 25.0, 2, 'LEON3-FT in star-tracker'),
+(2, 'TT&C', 3500, 3200, 18, 14, 28, 0.8, 25.0, NULL, 'X-band transceiver'),
+(3, 'C&DH', 12000, 10800, 35, 30, 52, 0.75, 30.0, 1, 'Europa Clipper - RAD750 with Vault shielding'),
+(3, 'Payload electronics', 22000, 19500, 80, 65, 120, 0.7, 30.0, 7, 'Virtex-5QV for ICEMAG/REASON instruments'),
+(3, 'ADCS', 5500, 4800, 20, 16, 32, 0.75, 30.0, 3, 'GR740 in attitude control'),
+(1, 'C&DH (COTS)', 800, 720, 12, 10, 18, 0.85, 20.0, 15, 'Starlink COTS FSD-Space'),
+(1, 'Comms baseband', 1200, 1080, 28, 24, 42, 0.85, 20.0, NULL, 'Phased-array baseband'),
+(4, 'C&DH', 6500, 5950, 22, 18, 32, 0.8, 25.0, 4, 'Lunar Gateway PPE - RAD5500'),
+(4, 'Electric Propulsion DCIU', 2800, 2600, 14, 11, 22, 0.8, 25.0, 2, 'Hall thruster controller LEON3-FT'),
+(11, 'C&DH cold-spare', 8200, 7400, 26, 0, 38, 0.75, 30.0, 1, 'JWST OBC cold-spare RAD750'),
+(11, 'Instrument SIDECAR ASICs', 4500, 4200, 32, 28, 45, 0.75, 30.0, NULL, 'SIDECAR ROIC array')
+ON CONFLICT DO NOTHING;
+
+-- =====================================================================
+-- Seed: Rad-Hard Foundries (Tier-2 process registry)
+-- =====================================================================
+INSERT INTO rad_hard_foundries (fab_name, operator, location, country, process_name, process_node_nm, rh_technique, tid_capability_krad, sel_let_threshold, itar_status, qml_certification, monthly_capacity_wafers, status, customers, notes) VALUES
+('BAE Manassas Fab', 'BAE Systems Electronic Systems', 'Manassas, VA', 'USA', 'BAE 150nm RH SOI', 150, 'RHBP-SOI', 1000, 80, 'ITAR', 'DSCC QML-V Class V, MIL-PRF-38535', 200, 'active', 'BAE (RAD750, RAD5500), NASA, DoD', 'Trusted Foundry; RHBP-SOI inherently SEL-immune'),
+('GlobalFoundries Trusted', 'GlobalFoundries', 'East Fishkill / Malta NY', 'USA', '32SOI RH / 22FDX RH', 32, 'RHBP-SOI + RHBD', 500, 75, 'ITAR', 'DSCC QML-V/Q, MIL-PRF-38535', 800, 'active', 'IBM Spectrum compute, Mercury Systems, BAE', 'Trusted Foundry - 32SOI; 22FDX RH option for SmallSat'),
+('IBM Microelectronics (legacy)', 'GlobalFoundries (acquired)', 'East Fishkill, NY', 'USA', '7HP SiGe BiCMOS RH', 130, 'RHBP-SiGe', 300, 65, 'ITAR', 'DSCC QML-V', 50, 'legacy', 'Honeywell, BAE legacy parts', 'Original IBM RH SiGe; capacity transitioned to GF Trusted'),
+('ON Semi Pocatello', 'onsemi (formerly Aeroflex Colorado Springs)', 'Pocatello, ID', 'USA', 'ON 600nm BCD RH analog', 600, 'RHBD-analog', 100, 65, 'ITAR', 'DSCC QML-V Class V', 100, 'active', 'Aeroflex/Cobham, Frontgrade analog ICs', 'Rad-hard analog/mixed-signal foundry'),
+('Microchip CT Fab 5', 'Microchip Technology', 'Colorado Springs, CO', 'USA', 'Microchip 0.18um RH', 180, 'RHBD-bulk-CMOS', 300, 70, 'ITAR', 'QML-V/Q, MIL-PRF-38535', 150, 'active', 'Microchip (SAMRH71, ATmegaS128), ESA', 'Acquired from Atmel; supplies SAMRH71 and ATmegaS series'),
+('SkyWater Trusted Foundry', 'SkyWater Technology', 'Bloomington, MN', 'USA', 'S130 RH130 + RH90', 90, 'RHBD-CMOS', 300, 60, 'ITAR', 'DSCC QML-V/Q', 250, 'active', 'DoD, NASA, Trusted Strategic Capability customers', 'US-only Trusted Foundry; primary for RH ASIC tape-outs post-IBM'),
+('TowerJazz/Tower Semiconductor', 'Tower Semiconductor', 'Newport Beach, CA / Migdal Haemek', 'USA/Israel', 'TS18 RH SOI', 180, 'RHBD-SOI', 100, 70, 'EAR', 'MIL-STD-883 Class B', 300, 'active', 'Vorago (VA10820), MIT Lincoln Lab', 'Vorago HARDSIL process built on Tower SOI'),
+('STMicroelectronics Crolles', 'STMicroelectronics', 'Crolles, France', 'France', 'C65SPACE 65nm', 65, 'RHBD-bulk-CMOS', 300, 60, 'EAR/ESA-QPL', 'ESA QPL, ECSS-Q-60', 400, 'active', 'ESA, Airbus DS, Thales Alenia Space', 'European sovereign rad-hard process for ESA missions'),
+('Microsemi/Microchip Phoenix', 'Microchip Technology', 'Phoenix, AZ', 'USA', 'RTG4 65nm flash-FPGA RH', 65, 'RHBD-flash-FPGA', 100, 65, 'ITAR', 'DSCC QML-V', 80, 'active', 'NASA, ESA, defense primes', 'RTG4 reprogrammable rad-hard FPGA process'),
+('TSMC N7 (COTS for upscreen)', 'TSMC', 'Hsinchu, Taiwan', 'Taiwan', 'TSMC N7 automotive', 7, 'COTS-upscreen', 30, 18, 'EAR', 'AEC-Q100 + customer-spec', 50000, 'active', 'SpaceX (FSD-Space), Planet Labs, Capella', 'NewSpace COTS-upscreen baseline; not natively rad-hard'),
+('Cobham Gaisler (fabless)', 'Cobham Gaisler / Frontgrade', 'Goteborg, Sweden', 'Sweden', 'LEON IP on STM C65SPACE + GF 32SOI', 32, 'RHBD-IP-portable', 300, 70, 'EAR', 'ESA QPL', NULL, 'active', 'ESA, OHB, Airbus DS', 'IP vendor - LEON3FT/LEON4/NOEL-V on multiple foundries'),
+('Frontgrade Linn (formerly Aeroflex)', 'Frontgrade Technologies', 'Linn, MO', 'USA', '180nm RH ASIC', 180, 'RHBD-CMOS', 300, 65, 'ITAR', 'DSCC QML-V Class V', 60, 'active', 'NASA, DoD, defense primes', 'Mixed-signal rad-hard ASIC for space')
+ON CONFLICT DO NOTHING;

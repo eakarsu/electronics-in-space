@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { Cpu, Rocket, Link2, FlaskConical, Factory, BookOpen, Sparkles, LogOut, Search, FileText, ScrollText, Database, LayoutDashboard } from 'lucide-react';
+import { Cpu, Rocket, Link2, FlaskConical, Factory, BookOpen, Sparkles, LogOut, Search, FileText, ScrollText, Database, LayoutDashboard, Atom, Globe, Boxes, Scale, Building2, Telescope } from 'lucide-react';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -9,6 +9,18 @@ const navItems = [
   { to: '/tests', icon: FlaskConical, label: 'Tests' },
   { to: '/manufacturers', icon: Factory, label: 'Manufacturers' },
   { to: '/research', icon: BookOpen, label: 'Research Papers' },
+];
+
+const radNavItems = [
+  { to: '/rad-test-campaigns', icon: Atom, label: 'Rad Test Campaigns' },
+  { to: '/orbit-environments', icon: Globe, label: 'Orbit Environments' },
+  { to: '/upscreen-lots',      icon: Boxes, label: 'COTS Upscreening' },
+  { to: '/subsystem-budgets',  icon: Scale, label: 'Mass / Power Budgets' },
+  { to: '/rad-hard-foundries', icon: Building2, label: 'Rad-Hard Foundries' },
+];
+
+const spaceViewsNavItems = [
+  { to: '/custom-views', icon: Telescope, label: 'Space Views' },
 ];
 
 const utilNavItems = [
@@ -52,6 +64,22 @@ export default function Layout() {
               {label}
             </NavLink>
           ))}
+          <div className="pt-4 border-t border-gray-800 mt-4 space-y-1">
+            <p className="px-3 pb-1 text-[10px] uppercase tracking-wider text-gray-500">Audit Deep Features</p>
+            {radNavItems.map(({ to, icon: Icon, label }) => (
+              <NavLink
+                key={to} to={to}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive ? 'bg-cyan-900/30 text-cyan-400 border border-cyan-800/40' : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`
+                }
+              >
+                <Icon size={16} />
+                {label}
+              </NavLink>
+            ))}
+          </div>
           <div className="pt-4 border-t border-gray-800 mt-4">
             <NavLink
               to="/ai"
@@ -64,6 +92,22 @@ export default function Layout() {
               <Sparkles size={16} />
               AI Center
             </NavLink>
+          </div>
+          <div className="pt-4 border-t border-gray-800 mt-4 space-y-1">
+            <p className="px-3 pb-1 text-[10px] uppercase tracking-wider text-gray-500">Space Views</p>
+            {spaceViewsNavItems.map(({ to, icon: Icon, label }) => (
+              <NavLink
+                key={to} to={to}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive ? 'bg-cyan-900/30 text-cyan-400 border border-cyan-800/40' : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`
+                }
+              >
+                <Icon size={16} />
+                {label}
+              </NavLink>
+            ))}
           </div>
           <div className="pt-4 border-t border-gray-800 mt-4 space-y-1">
             {utilNavItems.map(({ to, icon: Icon, label }) => (
