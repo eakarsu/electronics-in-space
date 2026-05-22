@@ -20,6 +20,32 @@ import SubsystemBudgetsPage from './pages/SubsystemBudgetsPage';
 import RadHardFoundriesPage from './pages/RadHardFoundriesPage';
 import CustomViewsPage from './pages/CustomViewsPage';
 
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
+import TimelineView from './pages/TimelineView';
+
+// Audit gap pages (AI)
+import GapThermalEnvelopeSolver from './pages/GapThermalEnvelopeSolver';
+import GapMassBudgetOptimizer from './pages/GapMassBudgetOptimizer';
+import GapSingleEventUpset from './pages/GapSingleEventUpset';
+import GapDeratingAdvisor from './pages/GapDeratingAdvisor';
+import GapTestCoverageGap from './pages/GapTestCoverageGap';
+
+// Audit gap pages (non-AI)
+import GapEdaCadUpload from './pages/GapEdaCadUpload';
+import GapTier2Suppliers from './pages/GapTier2Suppliers';
+import GapItarFlags from './pages/GapItarFlags';
+import GapChamberScheduling from './pages/GapChamberScheduling';
+import GapOrbitTelemetryIngest from './pages/GapOrbitTelemetryIngest';
+
+// Custom feature pages
+import CfChipDigitalTwin from './pages/CfChipDigitalTwin';
+import CfItarCollaboration from './pages/CfItarCollaboration';
+import CfRadTestPlanGen from './pages/CfRadTestPlanGen';
+import CfMissionDerating from './pages/CfMissionDerating';
+import CfRadHardMarketplace from './pages/CfRadHardMarketplace';
+
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   return localStorage.getItem('token') ? <>{children}</> : <Navigate to="/login" replace />;
 }
@@ -28,6 +54,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/insights/timeline" element={<TimelineView />} />
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
           <Route index element={<Navigate to="/dashboard" replace />} />
@@ -49,6 +79,27 @@ export default function App() {
           <Route path="exports" element={<ExportsPage />} />
           <Route path="audit" element={<AuditPage />} />
           <Route path="sample-data" element={<SampleDataPage />} />
+
+          {/* Audit gap features (AI) */}
+          <Route path="gap-thermal-envelope-solver" element={<GapThermalEnvelopeSolver />} />
+          <Route path="gap-mass-budget-optimizer" element={<GapMassBudgetOptimizer />} />
+          <Route path="gap-single-event-upset" element={<GapSingleEventUpset />} />
+          <Route path="gap-derating-advisor" element={<GapDeratingAdvisor />} />
+          <Route path="gap-test-coverage-gap" element={<GapTestCoverageGap />} />
+
+          {/* Audit gap features (non-AI) */}
+          <Route path="gap-eda-cad-upload" element={<GapEdaCadUpload />} />
+          <Route path="gap-tier2-suppliers" element={<GapTier2Suppliers />} />
+          <Route path="gap-itar-flags" element={<GapItarFlags />} />
+          <Route path="gap-chamber-scheduling" element={<GapChamberScheduling />} />
+          <Route path="gap-orbit-telemetry-ingest" element={<GapOrbitTelemetryIngest />} />
+
+          {/* Custom features */}
+          <Route path="cf-chip-digital-twin" element={<CfChipDigitalTwin />} />
+          <Route path="cf-itar-collaboration" element={<CfItarCollaboration />} />
+          <Route path="cf-rad-test-plan-gen" element={<CfRadTestPlanGen />} />
+          <Route path="cf-mission-derating" element={<CfMissionDerating />} />
+          <Route path="cf-rad-hard-marketplace" element={<CfRadHardMarketplace />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

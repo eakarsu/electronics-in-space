@@ -139,3 +139,57 @@ item and default post-login landing page.
   1 audit row returned
 - Backend stopped, port 3008 freed, tmp files removed
 Detailed log: /Users/erolakarsu/projects/_AUDIT/apply3_logs/dashboard_electronics-in-space.md
+
+## Apply pass 7 (full backlog implementation)
+
+Wired the 15 orphan Gap/Cf feature pages into the app. Their backend routes
+(in `routes/gap-*.js` and `routes/cf-*.js`) and `<Page>.tsx` files already
+existed and were JWT-protected with `CREATE TABLE IF NOT EXISTS gap_features`
+auto-migration, but no router entries or sidebar links pointed to them, so
+they were unreachable from the UI.
+
+### Items addressed (15)
+Gap AI: thermal-envelope-solver, mass-budget-optimizer, single-event-upset,
+derating-advisor, test-coverage-gap.
+Gap workflows (non-AI): eda-cad-upload, tier2-suppliers, itar-flags,
+chamber-scheduling, orbit-telemetry-ingest.
+Custom features: chip-digital-twin, itar-collaboration, rad-test-plan-gen,
+mission-derating, rad-hard-marketplace.
+
+### Endpoints (already mounted in server.js, unchanged)
+- POST/GET `/api/gap-ai-*` (×5), `/api/gap-nonai-*` (×5), `/api/cf-*` (×5)
+- Each route persists to shared `gap_features` table (auto-created via
+  `CREATE TABLE IF NOT EXISTS`).
+
+### Pages (existing files, now routed)
+- `/gap-thermal-envelope-solver`, `/gap-mass-budget-optimizer`,
+  `/gap-single-event-upset`, `/gap-derating-advisor`,
+  `/gap-test-coverage-gap`
+- `/gap-eda-cad-upload`, `/gap-tier2-suppliers`, `/gap-itar-flags`,
+  `/gap-chamber-scheduling`, `/gap-orbit-telemetry-ingest`
+- `/cf-chip-digital-twin`, `/cf-itar-collaboration`,
+  `/cf-rad-test-plan-gen`, `/cf-mission-derating`,
+  `/cf-rad-hard-marketplace`
+
+### Files touched
+- `frontend/src/App.tsx` — 15 imports + 15 `<Route>` entries (added under
+  the existing `<Layout/>` private route, before the catch-all)
+- `frontend/src/components/Layout.tsx` — 15 lucide icons imported, 3 new
+  sidebar groups ("Gap AI Tools", "Gap Workflows", "Custom Features")
+  inserted between Space Views and Utilities
+
+### Conventions preserved
+- JWT bearer middleware on all 15 endpoints (already in route files)
+- No backend `.js` files modified; `server.js` mounts unchanged
+- No new deps, no `npm install`, no schema.sql changes
+- No edits to the 15 feature page `.tsx` files themselves
+- `node --check backend/server.js` → OK
+- `tsc --noEmit -p tsconfig.json` → no errors in modified files
+- `vite build` → 1517 modules, 374 kB, 1.66 s, clean
+
+### Status
+Done. Backlog audit gaps (5 AI + 5 non-AI) and 5 custom-feature suggestions
+from `_AUDIT/reports/batch_extras.md` §9 are now reachable from the
+sidebar. No NEEDS-CREDS-only items skipped (all routes degrade gracefully
+when `OPENROUTER_API_KEY` is unset, returning an "AI unavailable" string
+rather than 503). No TOO-RISKY items remain.

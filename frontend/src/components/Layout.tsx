@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { Cpu, Rocket, Link2, FlaskConical, Factory, BookOpen, Sparkles, LogOut, Search, FileText, ScrollText, Database, LayoutDashboard, Atom, Globe, Boxes, Scale, Building2, Telescope } from 'lucide-react';
+import { Cpu, Rocket, Link2, FlaskConical, Factory, BookOpen, Sparkles, LogOut, Search, FileText, ScrollText, Database, LayoutDashboard, Atom, Globe, Boxes, Scale, Building2, Telescope, Thermometer, Weight, Zap, ShieldAlert, Target, FileUp, Network, Flag, CalendarClock, Activity, Radio, Lock, ClipboardList, Gauge, ShoppingCart } from 'lucide-react';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -21,6 +21,30 @@ const radNavItems = [
 
 const spaceViewsNavItems = [
   { to: '/custom-views', icon: Telescope, label: 'Space Views' },
+];
+
+const gapAiNavItems = [
+  { to: '/gap-thermal-envelope-solver', icon: Thermometer, label: 'Thermal Envelope' },
+  { to: '/gap-mass-budget-optimizer',   icon: Weight,      label: 'Mass Budget Opt' },
+  { to: '/gap-single-event-upset',      icon: Zap,         label: 'SEU Predictor' },
+  { to: '/gap-derating-advisor',        icon: ShieldAlert, label: 'Derating Advisor' },
+  { to: '/gap-test-coverage-gap',       icon: Target,      label: 'Test Coverage Gap' },
+];
+
+const gapNonAiNavItems = [
+  { to: '/gap-eda-cad-upload',          icon: FileUp,        label: 'EDA / CAD Upload' },
+  { to: '/gap-tier2-suppliers',         icon: Network,       label: 'Tier-2 Suppliers' },
+  { to: '/gap-itar-flags',              icon: Flag,          label: 'ITAR Flags' },
+  { to: '/gap-chamber-scheduling',      icon: CalendarClock, label: 'Chamber Scheduling' },
+  { to: '/gap-orbit-telemetry-ingest',  icon: Activity,      label: 'Telemetry Ingest' },
+];
+
+const cfNavItems = [
+  { to: '/cf-chip-digital-twin',      icon: Radio,         label: 'Chip Digital Twin' },
+  { to: '/cf-itar-collaboration',     icon: Lock,          label: 'ITAR Collaboration' },
+  { to: '/cf-rad-test-plan-gen',      icon: ClipboardList, label: 'Rad Test Plan Gen' },
+  { to: '/cf-mission-derating',       icon: Gauge,         label: 'Mission Derating' },
+  { to: '/cf-rad-hard-marketplace',   icon: ShoppingCart,  label: 'Rad-Hard Market' },
 ];
 
 const utilNavItems = [
@@ -101,6 +125,54 @@ export default function Layout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive ? 'bg-cyan-900/30 text-cyan-400 border border-cyan-800/40' : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`
+                }
+              >
+                <Icon size={16} />
+                {label}
+              </NavLink>
+            ))}
+          </div>
+          <div className="pt-4 border-t border-gray-800 mt-4 space-y-1">
+            <p className="px-3 pb-1 text-[10px] uppercase tracking-wider text-gray-500">Gap AI Tools</p>
+            {gapAiNavItems.map(({ to, icon: Icon, label }) => (
+              <NavLink
+                key={to} to={to}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive ? 'bg-violet-900/30 text-violet-400 border border-violet-800/40' : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`
+                }
+              >
+                <Icon size={16} />
+                {label}
+              </NavLink>
+            ))}
+          </div>
+          <div className="pt-4 border-t border-gray-800 mt-4 space-y-1">
+            <p className="px-3 pb-1 text-[10px] uppercase tracking-wider text-gray-500">Gap Workflows</p>
+            {gapNonAiNavItems.map(({ to, icon: Icon, label }) => (
+              <NavLink
+                key={to} to={to}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive ? 'bg-cyan-900/30 text-cyan-400 border border-cyan-800/40' : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`
+                }
+              >
+                <Icon size={16} />
+                {label}
+              </NavLink>
+            ))}
+          </div>
+          <div className="pt-4 border-t border-gray-800 mt-4 space-y-1">
+            <p className="px-3 pb-1 text-[10px] uppercase tracking-wider text-gray-500">Custom Features</p>
+            {cfNavItems.map(({ to, icon: Icon, label }) => (
+              <NavLink
+                key={to} to={to}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-800/40' : 'text-gray-400 hover:text-white hover:bg-gray-800'
                   }`
                 }
               >
