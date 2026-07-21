@@ -19,6 +19,7 @@ import UpscreenLotsPage from './pages/UpscreenLotsPage';
 import SubsystemBudgetsPage from './pages/SubsystemBudgetsPage';
 import RadHardFoundriesPage from './pages/RadHardFoundriesPage';
 import CustomViewsPage from './pages/CustomViewsPage';
+import QualityLotsPage from './pages/QualityLotsPage';
 
 import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
 import CodexOperationsFeature from './pages/CodexOperationsFeature';
@@ -46,6 +47,20 @@ import CfRadTestPlanGen from './pages/CfRadTestPlanGen';
 import CfMissionDerating from './pages/CfMissionDerating';
 import CfRadHardMarketplace from './pages/CfRadHardMarketplace';
 
+// Shared types retained for the standalone comparison/configurator components.
+export interface ChipConfig {
+  name: string; processNode: number; tdp: number; mass: number; radHardening: 0|1|2|3; tempMin: number; tempMax: number;
+}
+export interface SimulationResult {
+  chip: ChipConfig; seuErrorRate: number; inferenceOps: number; powerEfficiency: number;
+  thermalMinus40: 'pass'|'fail'; thermalPlus85: 'pass'|'fail'; thermalPlus125: 'pass'|'fail';
+}
+export const presets: ChipConfig[] = [
+  { name:'COTS 7nm',processNode:7,tdp:75,mass:80,radHardening:0,tempMin:-20,tempMax:85 },
+  { name:'Rad-tolerant 28nm',processNode:28,tdp:25,mass:110,radHardening:2,tempMin:-40,tempMax:125 },
+  { name:'Rad-hard 90nm',processNode:90,tdp:12,mass:140,radHardening:3,tempMin:-55,tempMax:125 },
+];
+
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   return localStorage.getItem('token') ? <>{children}</> : <Navigate to="/login" replace />;
 }
@@ -54,10 +69,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/insights/timeline" element={<TimelineView />} />
-        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
-        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
-
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
           <Route index element={<Navigate to="/dashboard" replace />} />
@@ -79,6 +90,10 @@ export default function App() {
           <Route path="exports" element={<ExportsPage />} />
           <Route path="audit" element={<AuditPage />} />
           <Route path="sample-data" element={<SampleDataPage />} />
+          <Route path="quality-lots" element={<QualityLotsPage />} />
+          <Route path="insights/timeline" element={<TimelineView />} />
+          <Route path="codex/custom-viz" element={<CodexCustomVizFeature />} />
+          <Route path="codex/operations" element={<CodexOperationsFeature />} />
 
           {/* Audit gap features (AI) */}
           <Route path="gap-thermal-envelope-solver" element={<GapThermalEnvelopeSolver />} />

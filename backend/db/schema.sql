@@ -1,3 +1,17 @@
+-- Destructive demo bootstrap only. Production startup uses backend/migrate.js.
+DROP TABLE IF EXISTS quality_events CASCADE;
+DROP TABLE IF EXISTS part_change_orders CASCADE;
+DROP TABLE IF EXISTS plan_overrides CASCADE;
+DROP TABLE IF EXISTS lot_approvals CASCADE;
+DROP TABLE IF EXISTS lot_exceptions CASCADE;
+DROP TABLE IF EXISTS lot_inspections CASCADE;
+DROP TABLE IF EXISTS quality_lots CASCADE;
+DROP TABLE IF EXISTS bom_requirements CASCADE;
+DROP TABLE IF EXISTS qualified_parts CASCADE;
+DROP TABLE IF EXISTS qualified_suppliers CASCADE;
+DROP TABLE IF EXISTS audit_history CASCADE;
+DROP TABLE IF EXISTS tenants CASCADE;
+DROP TABLE IF EXISTS schema_migrations CASCADE;
 DROP TABLE IF EXISTS research_papers CASCADE;
 DROP TABLE IF EXISTS tests CASCADE;
 DROP TABLE IF EXISTS chip_deployments CASCADE;

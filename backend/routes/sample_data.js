@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
-const { verifyToken } = require('../middleware/auth');
+const { requireRole, verifyToken } = require('../middleware/auth');
 
 // ------------------------------- sample data ----------------------------------
 const MANUFACTURERS = [
@@ -174,7 +174,7 @@ const HANDLERS = {
   research: insertResearch,
 };
 
-router.post('/sample-data/:entity', verifyToken, async (req, res) => {
+router.post('/sample-data/:entity', verifyToken, requireRole('admin'), async (req, res) => {
   const entity = String(req.params.entity || '').toLowerCase();
   const handler = HANDLERS[entity];
   if (!handler) {

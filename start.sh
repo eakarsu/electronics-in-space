@@ -1,46 +1,51 @@
-#!/bin/bash
-
-
-DB_NAME="space_electronics_db"
-BACKEND_DIR="$(cd "$(dirname "$0")/backend" && pwd)"
-FRONTEND_DIR="$(cd "$(dirname "$0")/frontend" && pwd)"
-ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
-
-echo "==> Stopping any existing processes on port 3008..."
-lsof -ti:3008 | xargs kill -9 2>/dev/null || true
-lsof -ti:5173 | xargs kill -9 2>/dev/null || true
-
-echo "==> Creating database $DB_NAME (if not exists)..."
-createdb "$DB_NAME" 2>/dev/null || echo "Database already exists"
-
-echo "==> Running schema..."
-psql "$DB_NAME" -f "$BACKEND_DIR/db/schema.sql"
-
-echo "==> Running seed..."
-psql "$DB_NAME" -f "$BACKEND_DIR/db/seed.sql"
-
-echo "==> Installing backend dependencies..."
-cd "$BACKEND_DIR"
-npm install
-
-echo "==> Installing frontend dependencies..."
-cd "$FRONTEND_DIR"
-npm install
-
-echo "==> Copying .env to backend..."
-cp "$ROOT_DIR/.env" "$BACKEND_DIR/.env"
-
-echo "==> Starting backend on port 3008..."
-cd "$BACKEND_DIR"
-npm run dev &
-
-echo "==> Starting frontend on port 5173..."
-cd "$FRONTEND_DIR"
-npm run dev &
-
-echo ""
-echo "SpaceLab is running!"
-echo "  Backend:  http://localhost:3008"
-echo "  Frontend: http://localhost:5173"
-echo ""
-wait
+#!/usr/bin/env bash
+set -euo pipefail
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BACKEND_PORT="${PORT:-3008}"
+FRONTEND_PORT="${FRONTEND_PORT:-5173}"
+if [[ -z "${AUDIT_CHAIN_KEY:-}" && -n "${JWT_REFRESH_SECRET:-}" ]]; then
+  export AUDIT_CHAIN_KEY="$JWT_REFRESH_SECRET"
+fi
+INSTALL=false
+DEMO_RESET=false
+MIGRATE=false
+for argument in "$@"; do
+  case "$argument" in
+    --install) INSTALL=true ;;
+    --migrate) MIGRATE=true ;;
+    --demo-reset) DEMO_RESET=true ;;
+    *) echo "Unknown option: $argument" >&2; exit 2 ;;
+  esac
+done
+for port in "$BACKEND_PORT" "$FRONTEND_PORT"; do
+  if lsof -tiTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "Port $port is already in use; no process was stopped." >&2
+    exit 1
+  fi
+done
+if "$INSTALL"; then
+  (cd "$PROJECT_DIR/backend" && npm ci)
+  (cd "$PROJECT_DIR/frontend" && npm ci)
+elif [[ ! -d "$PROJECT_DIR/backend/node_modules" || ! -d "$PROJECT_DIR/frontend/node_modules" ]]; then
+  echo "Dependencies are missing. Re-run with --install." >&2
+  exit 1
+fi
+if "$DEMO_RESET"; then
+  echo "Resetting the explicitly configured local demo database. Existing demo data will be deleted."
+  (cd "$PROJECT_DIR/backend" && ALLOW_DEMO_RESET=true node reset-demo.js)
+elif "$MIGRATE"; then
+  (cd "$PROJECT_DIR/backend" && node migrate.js)
+else
+  echo "Database migrations were not run; use --migrate only after reviewing the isolated target."
+fi
+(cd "$PROJECT_DIR/backend" && node server.js) &
+BACKEND_PID=$!
+(cd "$PROJECT_DIR/frontend" && VITE_API_PROXY_TARGET="http://127.0.0.1:$BACKEND_PORT" npm run dev -- --host 127.0.0.1 --port "$FRONTEND_PORT") &
+FRONTEND_PID=$!
+cleanup() {
+  kill "$BACKEND_PID" "$FRONTEND_PID" 2>/dev/null || true
+  wait "$BACKEND_PID" "$FRONTEND_PID" 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
+echo "SpaceLab is starting at http://127.0.0.1:$FRONTEND_PORT"
+wait "$BACKEND_PID" "$FRONTEND_PID"

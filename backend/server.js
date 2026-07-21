@@ -1,64 +1,11 @@
-require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
-const express = require('express');
-const cors = require('cors');
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/ai', require('./routes/ai'));
-app.use('/api/chips', require('./routes/chips'));
-app.use('/api/missions', require('./routes/missions'));
-app.use('/api/deployments', require('./routes/deployments'));
-app.use('/api/tests', require('./routes/tests'));
-app.use('/api/manufacturers', require('./routes/manufacturers'));
-app.use('/api/research', require('./routes/research'));
-app.use('/api/audit', require('./routes/audit'));
-app.use('/api/exports', require('./routes/exports'));
-app.use('/api/search', require('./routes/search'));
-app.use('/api/admin', require('./routes/sample_data'));
-app.use('/api/dashboard', require('./routes/dashboard'));
-
-// Best-effort: ensure audit_log table exists at startup
-try { require('./routes/audit').ensureTable().catch(() => {}); } catch (e) {}
-
-app.use('/api/gap-ai-thermal-envelope-solver', require('./routes/gap-ai-thermal-envelope-solver'));
-app.use('/api/gap-ai-mass-budget-optimizer', require('./routes/gap-ai-mass-budget-optimizer'));
-app.use('/api/gap-ai-single-event-upset', require('./routes/gap-ai-single-event-upset'));
-app.use('/api/gap-ai-derating-advisor', require('./routes/gap-ai-derating-advisor'));
-app.use('/api/gap-ai-test-coverage-gap', require('./routes/gap-ai-test-coverage-gap'));
-app.use('/api/gap-nonai-eda-cad-upload', require('./routes/gap-nonai-eda-cad-upload'));
-app.use('/api/gap-nonai-tier2-suppliers', require('./routes/gap-nonai-tier2-suppliers'));
-app.use('/api/gap-nonai-itar-flags', require('./routes/gap-nonai-itar-flags'));
-app.use('/api/gap-nonai-chamber-scheduling', require('./routes/gap-nonai-chamber-scheduling'));
-app.use('/api/gap-nonai-orbit-telemetry-ingest', require('./routes/gap-nonai-orbit-telemetry-ingest'));
-app.use('/api/cf-chip-digital-twin', require('./routes/cf-chip-digital-twin'));
-app.use('/api/cf-itar-collaboration', require('./routes/cf-itar-collaboration'));
-app.use('/api/cf-rad-test-plan-gen', require('./routes/cf-rad-test-plan-gen'));
-app.use('/api/cf-mission-derating', require('./routes/cf-mission-derating'));
-app.use('/api/cf-rad-hard-marketplace', require('./routes/cf-rad-hard-marketplace'));
-
-// === Audit deep-feature implementations (2026-05-14) ===
-app.use('/api/rad-test-campaigns',  require('./routes/rad-test-campaigns'));
-app.use('/api/orbit-environments',  require('./routes/orbit-environments'));
-app.use('/api/upscreen-lots',       require('./routes/upscreen-lots'));
-app.use('/api/subsystem-budgets',   require('./routes/subsystem-budgets'));
-app.use('/api/rad-hard-foundries',  require('./routes/rad-hard-foundries'));
-
-// Health
-app.get('/api/health', (req, res) => res.json({ ok: true, service: 'electronics-in-space', ts: new Date().toISOString() }));
-
-// Custom Views (mounted BEFORE 404/error handlers)
-app.use('/api/custom-views', require('./routes/customViews'));
-
-// 404 catch-all for unknown /api routes (must be AFTER all mounts)
-app.use('/api', (req, res) => res.status(404).json({ error: 'Not found', path: req.originalUrl }));
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: err.message });
-});
-
-const PORT = process.env.PORT || 3008;
-app.listen(PORT, () => console.log(`SpaceLab backend running on port ${PORT}`));
+require('dotenv').config({path:require('path').join(__dirname,'../.env')});
+const express=require('express');const cors=require('cors');const helmet=require('helmet');const pool=require('./db');const{migrate}=require('./migrate');const{rateLimit}=require('./middleware/rateLimit');
+function validateConfig(){const errors=[];if(!process.env.DATABASE_URL)errors.push('DATABASE_URL is required');if(!process.env.JWT_SECRET||process.env.JWT_SECRET.length<32)errors.push('JWT_SECRET must be at least 32 characters');if(!process.env.AUDIT_CHAIN_KEY||process.env.AUDIT_CHAIN_KEY.length<32)errors.push('AUDIT_CHAIN_KEY must be at least 32 characters');if(errors.length)throw new Error(`Configuration error: ${errors.join('; ')}`);}
+function createApp(){const app=express();app.disable('x-powered-by');const allowed=new Set((process.env.CORS_ORIGINS||'http://localhost:5173').split(',').map(v=>v.trim()).filter(Boolean));app.use(helmet());app.use(cors({origin(origin,callback){return!origin||allowed.has(origin)?callback(null,true):callback(Object.assign(new Error('Origin is not allowed'),{status:403}));}}));app.use(express.json({limit:'256kb',strict:true}));app.use('/api',rateLimit({max:300,key:req=>`api:${req.ip}`}));
+ const mounts=[
+ ['/api/auth','./routes/auth'],['/api/quality','./routes/quality','router'],['/api/ai','./routes/ai'],['/api/chips','./routes/chips'],['/api/missions','./routes/missions'],['/api/deployments','./routes/deployments'],['/api/tests','./routes/tests'],['/api/manufacturers','./routes/manufacturers'],['/api/research','./routes/research'],['/api/audit','./routes/audit'],['/api/exports','./routes/exports'],['/api/search','./routes/search'],['/api/admin','./routes/sample_data'],['/api/dashboard','./routes/dashboard'],
+ ['/api/gap-ai-thermal-envelope-solver','./routes/gap-ai-thermal-envelope-solver'],['/api/gap-ai-mass-budget-optimizer','./routes/gap-ai-mass-budget-optimizer'],['/api/gap-ai-single-event-upset','./routes/gap-ai-single-event-upset'],['/api/gap-ai-derating-advisor','./routes/gap-ai-derating-advisor'],['/api/gap-ai-test-coverage-gap','./routes/gap-ai-test-coverage-gap'],['/api/gap-nonai-eda-cad-upload','./routes/gap-nonai-eda-cad-upload'],['/api/gap-nonai-tier2-suppliers','./routes/gap-nonai-tier2-suppliers'],['/api/gap-nonai-itar-flags','./routes/gap-nonai-itar-flags'],['/api/gap-nonai-chamber-scheduling','./routes/gap-nonai-chamber-scheduling'],['/api/gap-nonai-orbit-telemetry-ingest','./routes/gap-nonai-orbit-telemetry-ingest'],['/api/cf-chip-digital-twin','./routes/cf-chip-digital-twin'],['/api/cf-itar-collaboration','./routes/cf-itar-collaboration'],['/api/cf-rad-test-plan-gen','./routes/cf-rad-test-plan-gen'],['/api/cf-mission-derating','./routes/cf-mission-derating'],['/api/cf-rad-hard-marketplace','./routes/cf-rad-hard-marketplace'],['/api/rad-test-campaigns','./routes/rad-test-campaigns'],['/api/orbit-environments','./routes/orbit-environments'],['/api/upscreen-lots','./routes/upscreen-lots'],['/api/subsystem-budgets','./routes/subsystem-budgets'],['/api/rad-hard-foundries','./routes/rad-hard-foundries'],['/api/custom-views','./routes/customViews']];
+ for(const[path,modulePath,property]of mounts){const loaded=require(modulePath);app.use(path,property?loaded[property]:loaded);}
+ app.get('/api/health',(_req,res)=>res.json({ok:true,service:'electronics-in-space'}));app.get('/api/health/readiness',async(_req,res,next)=>{try{await pool.query('SELECT 1');return res.json({ready:true});}catch(error){return next(error);}});app.use('/api',(req,res)=>res.status(404).json({error:'Not found',path:req.path}));app.use((error,_req,res,_next)=>{if(process.env.NODE_ENV!=='test')console.error(error);if(error.type==='entity.too.large')return res.status(413).json({error:'Request body is too large'});if(error instanceof SyntaxError&&error.status===400)return res.status(400).json({error:'Malformed JSON'});if(error.code==='23505')return res.status(409).json({error:'A record with this identifier already exists'});if(['23503','23514','22P02'].includes(error.code))return res.status(400).json({error:'Request violates a data constraint'});const status=Number.isInteger(error.status)?error.status:500;return res.status(status).json({error:status===500?'Internal server error':error.message,details:status<500?error.details:undefined});});return app;}
+async function start(){validateConfig();await migrate();const port=Number(process.env.PORT||3008);return createApp().listen(port,process.env.HOST||'127.0.0.1',()=>console.log(`SpaceLab backend running on port ${port}`));}
+if(require.main===module)start().catch(error=>{console.error(error.message);pool.end().finally(()=>{process.exitCode=1;});});module.exports={createApp,start,validateConfig};

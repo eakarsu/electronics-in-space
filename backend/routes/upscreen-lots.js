@@ -156,40 +156,10 @@ router.post('/:id/steps', async (req, res) => {
 
 // Auto-advance: applies next step from DEFAULT_PIPELINE with expected yield.
 router.post('/:id/advance', async (req, res) => {
-  try {
-    const lot = await pool.query('SELECT * FROM upscreen_lots WHERE id = $1', [req.params.id]);
-    if (!lot.rows[0]) return res.status(404).json({ error: 'Lot not found' });
-    const stepsRes = await pool.query(
-      'SELECT step_name, parts_pass FROM upscreen_steps WHERE lot_id = $1 ORDER BY step_order',
-      [req.params.id]
-    );
-    const done = stepsRes.rows.length;
-    if (done >= DEFAULT_PIPELINE.length) return res.status(409).json({ error: 'Pipeline complete' });
-    const cfg = DEFAULT_PIPELINE[done];
-    const partsIn = done === 0
-      ? Number(lot.rows[0].parts_received)
-      : Number(stepsRes.rows[stepsRes.rows.length - 1].parts_pass);
-    const partsPass = Math.floor(partsIn * cfg.yield);
-    const partsFail = partsIn - partsPass;
-    const yld = partsIn > 0 ? +((partsPass / partsIn) * 100).toFixed(2) : null;
-    const r = await pool.query(
-      `INSERT INTO upscreen_steps
-       (lot_id, step_order, step_name, standard_ref, duration_hours, temperature_c,
-        voltage_stress_v, parts_in, parts_pass, parts_fail, yield_pct, observations)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
-      [req.params.id, done + 1, cfg.step_name, cfg.standard_ref, cfg.duration_hours,
-       cfg.temp, cfg.v, partsIn, partsPass, partsFail, yld,
-       `Auto-advance: applied default yield ${(cfg.yield*100).toFixed(1)}%`]
-    );
-    // After the final step, update lot totals.
-    if (done + 1 === DEFAULT_PIPELINE.length) {
-      await pool.query(
-        `UPDATE upscreen_lots SET parts_accepted=$1, parts_rejected=$2, status='complete', complete_date=CURRENT_DATE WHERE id=$3`,
-        [partsPass, Number(lot.rows[0].parts_received) - partsPass, req.params.id]
-      );
-    }
-    res.status(201).json({ step: r.rows[0], steps_done: done + 1, pipeline_total: DEFAULT_PIPELINE.length });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  res.status(410).json({
+    error: 'Simulated auto-yield is retired',
+    next_step: 'Submit source-attributed measurements through /api/quality/lots/:id/inspections.',
+  });
 });
 
 router.get('/:id/cumulative-yield', async (req, res) => {

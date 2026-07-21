@@ -1,7 +1,8 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { Cpu, Rocket, Link2, FlaskConical, Factory, BookOpen, Sparkles, LogOut, Search, FileText, ScrollText, Database, LayoutDashboard, Atom, Globe, Boxes, Scale, Building2, Telescope, Thermometer, Weight, Zap, ShieldAlert, Target, FileUp, Network, Flag, CalendarClock, Activity, Radio, Lock, ClipboardList, Gauge, ShoppingCart } from 'lucide-react';
+import { Cpu, Rocket, Link2, FlaskConical, Factory, BookOpen, Sparkles, LogOut, Search, FileText, ScrollText, Database, LayoutDashboard, Atom, Globe, Boxes, Scale, Building2, Telescope, Thermometer, Weight, Zap, ShieldAlert, Target, FileUp, Network, Flag, CalendarClock, Activity, Radio, Lock, ClipboardList, Gauge, ShoppingCart, PackageCheck } from 'lucide-react';
 
 const navItems = [
+  { to: '/quality-lots', icon: PackageCheck, label: 'Quality Lot Release' },
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/chips', icon: Cpu, label: 'Chips' },
   { to: '/missions', icon: Rocket, label: 'Missions' },
