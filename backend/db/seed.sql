@@ -149,7 +149,7 @@ INSERT INTO rad_test_runs (campaign_id, run_label, effect_type, let_mev_cm2_mg, 
 (10, 'TID step 100krad', 'TID', NULL, NULL, 100, 0, NULL, NULL, NULL, 240, 3.3, true, 'UT8R512K32 SRAM all bits functional after 100krad'),
 (10, 'TID step 200krad', 'TID', NULL, NULL, 200, 1, NULL, NULL, NULL, 255, 3.3, true, '1 stuck bit at 200krad on part SN-37'),
 (12, 'Ar LET=8.6 SEL', 'SEL', 8.6, 1.0e7, 0, 0, 0, NULL, NULL, NULL, 1.8, true, 'COTS FSD-Space no SEL at LET 8.6'),
-(12, 'Kr LET=18 SEL', 'SEL', 18.0, 5.0e6, 0, 4, 8.0e-7, NULL, NULL, 1.8, false, 'SEL observed at LET=18; mitigation via active current-limit circuit'),
+(12, 'Kr LET=18 SEL', 'SEL', 18.0, 5.0e6, 0, 4, 8.0e-7, NULL, NULL, NULL, 1.8, false, 'SEL observed at LET=18; mitigation via active current-limit circuit'),
 (12, 'Au LET=58 SEFI', 'SEFI', 58.0, 1.0e6, 0, 28, 2.8e-5, 5e-5, 12.0, NULL, 1.8, false, 'COTS SEFI rate too high without external watchdog')
 ON CONFLICT DO NOTHING;
 

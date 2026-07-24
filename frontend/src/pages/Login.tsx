@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Cpu } from 'lucide-react';
 import { apiFetch } from '../api';
 
+const demoEmail = import.meta.env.VITE_ENABLE_DEMO_CREDENTIAL_AUTOFILL === 'true' ? import.meta.env.VITE_DEMO_EMAIL || '' : '';
+const demoPassword = import.meta.env.VITE_ENABLE_DEMO_CREDENTIAL_AUTOFILL === 'true' ? import.meta.env.VITE_DEMO_PASSWORD || '' : '';
+
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,13 +28,13 @@ export default function Login() {
   }
 
   function demoLogin() {
-    setEmail('admin@demo.com');
-    setPassword('demo123');
+    setEmail(demoEmail);
+    setPassword(demoPassword);
     setTimeout(async () => {
       try {
         const data = await apiFetch('/auth/login', {
           method: 'POST',
-          body: JSON.stringify({ email: 'admin@demo.com', password: 'demo123' }),
+          body: JSON.stringify({ email: demoEmail, password: demoPassword }),
         });
         localStorage.setItem('token', data.token);
         navigate('/chips');
@@ -72,7 +75,7 @@ export default function Login() {
           <button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-3 rounded-lg font-medium transition-colors">
             Sign In
           </button>
-          <button type="button" onClick={demoLogin} className="w-full bg-gray-700 hover:bg-gray-600 text-gray-200 py-3 rounded-lg font-medium transition-colors text-sm">
+          <button type="button" disabled={!demoEmail || !demoPassword} onClick={demoLogin} className="w-full bg-gray-700 hover:bg-gray-600 text-gray-200 py-3 rounded-lg font-medium transition-colors text-sm disabled:opacity-50">
             Demo Login
           </button>
         </form>
