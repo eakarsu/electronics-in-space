@@ -9,6 +9,11 @@ async function migrate() {
   const client = await pool.connect();
   try {
     await client.query('SELECT pg_advisory_lock($1)', [LOCK_ID]);
+    const baseSchemaExists = (await client.query("SELECT to_regclass('public.users') AS name")).rows[0].name;
+    if (!baseSchemaExists) {
+      const baseSchema = await fs.readFile(path.join(__dirname, 'db', 'schema.sql'), 'utf8');
+      await client.query(baseSchema);
+    }
     await client.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
       name TEXT PRIMARY KEY, sha256 CHAR(64) NOT NULL, applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`);

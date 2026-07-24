@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKEND_PORT="${PORT:-3008}"
+if [[ -f "$PROJECT_DIR/.env" ]]; then
+  set -a
+  source "$PROJECT_DIR/.env"
+  set +a
+fi
+BACKEND_PORT="${BACKEND_PORT:-${PORT:-3008}}"
 FRONTEND_PORT="${FRONTEND_PORT:-5173}"
+export PORT="$BACKEND_PORT" BACKEND_PORT FRONTEND_PORT
 if [[ -z "${AUDIT_CHAIN_KEY:-}" && -n "${JWT_REFRESH_SECRET:-}" ]]; then
   export AUDIT_CHAIN_KEY="$JWT_REFRESH_SECRET"
 fi
@@ -33,10 +39,9 @@ fi
 if "$DEMO_RESET"; then
   echo "Resetting the explicitly configured local demo database. Existing demo data will be deleted."
   (cd "$PROJECT_DIR/backend" && ALLOW_DEMO_RESET=true node reset-demo.js)
-elif "$MIGRATE"; then
-  (cd "$PROJECT_DIR/backend" && node migrate.js)
 else
-  echo "Database migrations were not run; use --migrate only after reviewing the isolated target."
+  (cd "$PROJECT_DIR/backend" && node migrate.js)
+  (cd "$PROJECT_DIR/backend" && node create-admin.js)
 fi
 (cd "$PROJECT_DIR/backend" && node server.js) &
 BACKEND_PID=$!

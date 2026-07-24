@@ -2,19 +2,24 @@ const express = require('express');
 const router = express.Router();
 const { verifyToken } = require('../middleware/auth');
 const { writeAudit } = require('./audit');
+const pool = require('../db');
 
 async function callAI(userPrompt, systemPrompt = '') {
-  if (!process.env.OPENROUTER_API_KEY) {
-    const err = new Error('AI service not configured (OPENROUTER_API_KEY missing)');
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  const baseUrl = process.env.OPENROUTER_BASE_URL;
+  const model = process.env.OPENROUTER_MODEL;
+  if (!apiKey || !baseUrl || !model) {
+    const err = new Error('AI service is not fully configured');
     err.status = 503;
     throw err;
   }
   let resp;
   try {
-    resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    resp = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'http://localhost', 'X-Title': 'SpaceLab' },
-      body: JSON.stringify({ model: process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5', messages: [...(systemPrompt ? [{role:'system',content:systemPrompt}] : []), {role:'user',content:userPrompt}] })
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'http://localhost', 'X-Title': 'SpaceLab' },
+      body: JSON.stringify({ model, messages: [...(systemPrompt ? [{role:'system',content:systemPrompt}] : []), {role:'user',content:userPrompt}] }),
+      signal: AbortSignal.timeout(45_000),
     });
   } catch (e) {
     const err = new Error('AI provider unreachable');
@@ -27,7 +32,13 @@ async function callAI(userPrompt, systemPrompt = '') {
     throw err;
   }
   const data = await resp.json();
-  return data.choices?.[0]?.message?.content || 'AI unavailable';
+  const content = data.choices?.[0]?.message?.content?.trim();
+  if (!content) {
+    const err = new Error('AI provider returned empty content');
+    err.status = 502;
+    throw err;
+  }
+  return { content, model };
 }
 
 function aiHandler(systemPrompt, buildUserPrompt, action) {
@@ -35,8 +46,13 @@ function aiHandler(systemPrompt, buildUserPrompt, action) {
     try {
       const userPrompt = buildUserPrompt(req.body || {});
       const result = await callAI(userPrompt, systemPrompt);
+      const stored = await pool.query(
+        `INSERT INTO runtime_ai_results(user_id,tenant_id,action,prompt,content,provider,model)
+         VALUES($1,$2,$3,$4,$5,'openrouter',$6) RETURNING id`,
+        [req.user.id, req.user.tenant_id, action, userPrompt, result.content, result.model],
+      );
       writeAudit(req, action, req.body).catch(() => {});
-      res.json({ result });
+      res.json({ result: result.content, content: result.content, provider: 'openrouter', model: result.model, persistedId: stored.rows[0].id });
     } catch (err) {
       res.status(err.status || 500).json({ error: err.message });
     }
