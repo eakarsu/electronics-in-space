@@ -76,7 +76,7 @@ export default function Login() {
             Sign In
           </button>
           <button type="button" disabled={!demoEmail || !demoPassword} onClick={demoLogin} className="w-full bg-gray-700 hover:bg-gray-600 text-gray-200 py-3 rounded-lg font-medium transition-colors text-sm disabled:opacity-50">
-            Demo Login
+            Auto Fill Demo Credentials
           </button>
         </form>
       </div>
